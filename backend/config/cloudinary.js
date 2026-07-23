@@ -10,13 +10,37 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: "portfolio",
-    allowed_formats: ["jpg", "jpeg", "png", "webp", "svg"],
-    transformation: [{ width: 1600, crop: "limit" }],
+  params: async (req, file) => {
+    const isPDF = file.mimetype === "application/pdf";
+    if (isPDF) {
+      return {
+        folder: "portfolio/resumes",
+        resource_type: "raw", // PDFs/non-image files must use "raw" on Cloudinary
+        allowed_formats: ["pdf"],
+        // Cloudinary derives the public_id from originalname for raw files by
+        // default, which can cause collisions - keep it unique:
+        public_id: `resume-${Date.now()}`,
+      };
+    }
+    return {
+      folder: "portfolio",
+      resource_type: "image",
+      allowed_formats: ["jpg", "jpeg", "png", "webp", "svg"],
+      transformation: [{ width: 1600, crop: "limit" }],
+    };
   },
 });
 
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+// Accept images (for profile/project/certificate pictures) and PDFs (for resume)
+const fileFilter = (req, file, cb) => {
+  const allowed = ["image/jpeg", "image/png", "image/webp", "image/svg+xml", "application/pdf"];
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files or PDF are allowed"));
+  }
+};
+
+const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
 
 module.exports = { cloudinary, upload };

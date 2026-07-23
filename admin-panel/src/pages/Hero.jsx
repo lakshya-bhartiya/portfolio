@@ -4,6 +4,7 @@ import { heroApi } from "../lib/endpoints";
 import { PageHeader } from "../components/PageHeader";
 import { Button, Input, Label, Textarea, Card, CardContent, Spinner } from "../components/ui/primitives";
 import { ImageUpload } from "../components/ui/ImageUpload";
+import { ResumeUpload } from "../components/ui/ResumeUpload";
 
 const empty = {
   name: "",
@@ -79,20 +80,10 @@ export default function Hero() {
               value={form.profileImage}
               onChange={(url) => setForm({ ...form, profileImage: url })}
             />
-            <div>
-              <Label>Resume URL (PDF)</Label>
-              <div className="flex gap-3 items-start">
-                <Input
-                  value={form.resumeUrl}
-                  onChange={(e) => setForm({ ...form, resumeUrl: e.target.value })}
-                  placeholder="https://... or upload below"
-                  className="flex-1"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Upload your resume PDF to Cloudinary (or any host) and paste the link here.
-              </p>
-            </div>
+            <ResumeUpload
+              value={form.resumeUrl}
+              onChange={(url) => setForm({ ...form, resumeUrl: url })}
+            />
           </CardContent>
         </Card>
 
